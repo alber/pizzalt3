@@ -27,6 +27,7 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+	document.addEventListener("deviceready", this.initPushwoosh, true);
     },
     // deviceready Event Handler
     //
@@ -46,4 +47,37 @@ var app = {
 
         console.log('Received Event: ' + id);
     }
-};
+
+    initPushwoosh: function() {
+    var pushNotification = cordova.require("com.pushwoosh.plugins.pushwoosh.PushNotification");
+
+    //set push notifications handler
+    document.addEventListener('push-notification', function(event) {
+        var title = event.notification.title;
+        var userData = event.notification.userdata;
+
+        if(typeof(userData) != "undefined") {
+            console.warn('user data: ' + JSON.stringify(userData));
+        }
+
+        alert(title);
+    });
+ 
+    //initialize Pushwoosh with projectid: "GOOGLE_PROJECT_ID", pw_appid : "PUSHWOOSH_APP_ID". This will trigger all pending push notifications on start.
+    pushNotification.onDeviceReady({ projectid: "87041944852", pw_appid : "0F966-BBFF2" });
+
+    //register for pushes
+    pushNotification.registerDevice(
+        function(status) {
+            var pushToken = status;
+            console.warn('push token: ' + pushToken);
+        },
+        function(status) {
+            console.warn(JSON.stringify(['failed to register ', status]));
+        }
+    ); //end pushNotification.registerDevice
+
+    }//end initPushwoosh ODM
+
+};//end app Object
+
